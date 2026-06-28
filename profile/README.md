@@ -1,19 +1,25 @@
-# Hi there! 👋
+# Escluse
 
-Welcome to Escluse - Your Game Server Hosting Platform
+Game server hosting, engineered differently.
 
-🌐 **Website**: [https://esluce.com](https://esluce.com)
+**Website**: [https://esluce.com](https://esluce.com)
 
 ---
 
 ### What We Build
 
-Escluse provides easy-to-use game server hosting with:
-- 🚀 Instant server deployment
-- 🎮 Support for Minecraft, CS2, Rust, and more
-- 📊 Real-time monitoring
-- 🔄 Automated backups
-- 💬 Discord integration
+Escluse is a modern game server hosting platform built from the ground up with performance and reliability as first principles, not afterthoughts.
+
+- Instant server deployment
+- Minecraft server hosting
+- Real-time monitoring and metrics
+- Automated backups with retention
+
+---
+
+### Why Escluse?
+
+Most game hosting panels bolt a web UI onto existing tooling. Escluse is different: a custom Rust agent (Solys Agent) manages servers on the metal, while a Rust (Axum) backend orchestrates deployment, monitoring, and infrastructure. The result is lower overhead, faster spin-up, and a platform designed to scale from a single server to a fleet.
 
 ---
 
@@ -29,8 +35,6 @@ Escluse provides easy-to-use game server hosting with:
 
 ### Get Started
 
-Visit [https://esluce.com](https://esluce.com) to start hosting your game servers!
+Visit [https://esluce.com](https://esluce.com) to start hosting your game servers.
 
----
-
-⭐ Star us on GitHub if you like what we build!
+Star us on GitHub if you like what we build.
