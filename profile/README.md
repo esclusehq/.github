@@ -1,6 +1,6 @@
 # Escluse
 
-Game server hosting, engineered differently.
+Your hardware, your rules. Game server management on your own machines.
 
 **Website**: [https://esluce.com](https://esluce.com)
 
@@ -8,18 +8,23 @@ Game server hosting, engineered differently.
 
 ### What We Build
 
-Escluse is a modern game server hosting platform built from the ground up with performance and reliability as first principles, not afterthoughts.
+Escluse is a self-hosted game server management platform. You bring the hardware — a VPS, a dedicated server, or an old laptop — and we provide the software.
 
-- Instant server deployment
-- Minecraft server hosting
-- Real-time monitoring and metrics
-- Automated backups with retention
+Install the lightweight Solys agent on any Linux machine, connect it to your dashboard, and manage game servers from one place. No lock-in, no paying for compute you are not using.
+
+---
+
+### Current Status
+
+- **Early Access** — actively developed, feedback welcome
+- **Supported games**: Minecraft (Java & Bedrock)
+- More games coming based on community requests
 
 ---
 
 ### Why Escluse?
 
-Most game hosting panels bolt a web UI onto existing tooling. Escluse is different: a custom Rust agent (Solys Agent) manages servers on the metal, while a Rust (Axum) backend orchestrates deployment, monitoring, and infrastructure. The result is lower overhead, faster spin-up, and a platform designed to scale from a single server to a fleet.
+Most solutions either lock you into expensive hosting or leave you wrestling with command-line configs. Escluse gives you the control of self-hosting without the complexity. A custom Rust agent (Solys) handles the heavy lifting, while the dashboard gives you one-click mod management, backups, monitoring, and scheduling.
 
 ---
 
@@ -28,13 +33,18 @@ Most game hosting panels bolt a web UI onto existing tooling. Escluse is differe
 - **Backend**: Rust (Axum)
 - **Frontend**: React + TypeScript
 - **Database**: PostgreSQL + Redis
-- **Infrastructure**: Docker, AWS ECR, EC2
 - **Agent**: Rust (Solys Agent)
 
 ---
 
 ### Get Started
 
-Visit [https://esluce.com](https://esluce.com) to start hosting your game servers.
+Install the agent on your Linux machine and link it to your dashboard:
+
+```bash
+curl -fsSL https://get.esluce.com/latest/install.sh | bash
+```
+
+Visit [https://esluce.com](https://esluce.com) for more info.
 
 Star us on GitHub if you like what we build.
