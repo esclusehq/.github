@@ -1,38 +1,33 @@
 # Escluse
 
-**Your hardware, your rules.** Self-hosted game server management — you bring the
-machines, Escluse provides the software.
+**Your hardware, your rules.** Game server software you run on machines you already own.
+You bring the servers, it brings the panel.
 
-**Website:** [esclusehg.com](https://esclusehg.com) · **Docs:** [docs.esclusehg.com](https://docs.esclusehg.com)
-
----
+**Website:** [esclusehg.com](https://esclusehg.com) · **Docs:** [escluse-docs](https://github.com/esclusehq/escluse-docs)
 
 ## What it is
 
-Escluse is a game server management platform. Install the lightweight **Solys** agent
-on any Linux machine — a VPS, a dedicated server, or an old laptop — link it to your
-dashboard, and manage game servers from one place: one-click mod and modpack installs,
-backups, live console, monitoring, and scheduling. No lock-in, and no paying for
-compute you already own.
+Escluse does roughly what Pterodactyl or AMP does, except you're not renting compute
+from anyone. Install the **Solys** agent on a Linux box (a cheap VPS, a dedicated
+server, an old desktop in the cupboard), pair it with your dashboard, and every server
+ends up on one screen: mod and modpack installs, file manager, live console, backups,
+metrics and scheduling.
 
-Supported today: **Minecraft (Java & Bedrock)**. More games follow community requests.
-
----
+Minecraft, Java and Bedrock, works today. More games get added as people ask for them.
 
 ## Architecture
 
-A central Rust API orchestrates everything. Each node runs the Solys agent, which keeps
-a persistent WebSocket connection to the API and drives the local container runtime.
-The React dashboard and the rest of the frontends talk REST to the same API.
+One Rust API in the middle and everything talks to it. Each node runs the Solys agent,
+which keeps a WebSocket open back to the API and does the actual work locally: pulling
+images, starting containers through Bollard, reporting results. The dashboard is a
+React 19 app talking REST at that same API.
 
 ```mermaid
 graph TD
-  U["Users"] --> CADDY["Caddy<br/>(reverse proxy + TLS)"]
-  CADDY --> LANDING["Landing"]
-  CADDY --> APP["Dashboard"]
-  CADDY --> DOCS["Docs"]
-  CADDY --> BRIDGE["Admin Bridge"]
-  CADDY --> API["API — escluse-cloud<br/>Rust / Axum"]
+  U["Users"] --> PROXY["nginx / Caddy<br/>(reverse proxy + TLS)"]
+  PROXY --> LANDING["Landing"]
+  PROXY --> APP["Dashboard"]
+  PROXY --> API["API — escluse-cloud<br/>Rust / Axum"]
 
   API --> PG[("PostgreSQL 16")]
   API --> RD[("Redis 7")]
@@ -47,60 +42,61 @@ graph TD
   RELAY <-- "yamux tunnels" --> A1
 ```
 
-**Server lifecycle:** the dashboard calls the API → the API records the server and
-enqueues a provision task → the agent receives it over its WebSocket, pulls the image,
-and creates the container via Bollard → the agent reports the result → the API flips
-the server to `running`. Backups, alert evaluation, and webhooks run as in-process
-background services.
+Creating a server goes like this: the dashboard calls the API, the API writes the
+record and queues a provision task, the agent picks it up over the WebSocket, pulls the
+image, creates the container and reports back, then the API flips the status to
+`running`. Backups, alert checks and webhooks are background tasks living in the same
+API process.
 
----
+Nothing unusual in the data layer either, just PostgreSQL 16 and Redis 7.
 
 ## Repositories
 
+Actively developed:
+
 | Repository | What it is |
 |------------|------------|
-| [escluse-cloud](https://github.com/esclusehq/escluse-cloud) | Rust/Axum backend API + background jobs |
-| [escluse-dashboard](https://github.com/esclusehq/escluse-dashboard) | React 19 user dashboard |
+| [escluse-cloud](https://github.com/esclusehq/escluse-cloud) | Rust/Axum API, background jobs and the SQL migrations |
+| [escluse-dashboard](https://github.com/esclusehq/escluse-dashboard) | React 19 dashboard |
 | [escluse-landing-page](https://github.com/esclusehq/escluse-landing-page) | Marketing site |
-| [escluse-infra](https://github.com/esclusehq/escluse-infra) | Docker Compose, Caddy, relay gateway |
-| [escluse-bridge](https://github.com/esclusehq/escluse-bridge) | Standalone admin panel |
-| [escluse-bot](https://github.com/esclusehq/escluse-bot) | Discord moderation & onboarding bot |
-| [escluse-sdk](https://github.com/esclusehq/escluse-sdk) | TypeScript & Python SDKs, OpenAPI spec, CLI |
+| [escluse-infra](https://github.com/esclusehq/escluse-infra) | Compose files, nginx/Caddy config, relay gateway |
+| [solys](https://github.com/esclusehq/solys) | The agent you install on your machines |
+| [agent-core](https://github.com/esclusehq/agent-core) | Shared Rust crates the agent is built from |
 | [escluse-docs](https://github.com/esclusehq/escluse-docs) | VitePress documentation |
-| [solys](https://github.com/esclusehq/solys) | Rust node agent (Web Agent) |
-| [agent-core](https://github.com/esclusehq/agent-core) | Rust workspace — 12 shared agent crates |
-| [escluse](https://github.com/esclusehq/escluse) | Legacy monorepo (superseded by the split repos) |
-| [.github](https://github.com/esclusehq/.github) | Org profile & templates |
 
----
+Kept around, no longer developed:
+
+| Repository | What it is |
+|------------|------------|
+| [escluse-bridge](https://github.com/esclusehq/escluse-bridge) | Standalone admin panel |
+| [escluse-bot](https://github.com/esclusehq/escluse-bot) | Discord moderation and onboarding bot |
+| [escluse-sdk](https://github.com/esclusehq/escluse-sdk) | TypeScript and Python SDKs, plus a CLI |
+| [escluse](https://github.com/esclusehq/escluse) | The monorepo it all started in, split later |
+
+This page and the org templates live in [.github](https://github.com/esclusehq/.github).
 
 ## Tech stack
 
 | Layer | Technology |
 |-------|-----------|
 | Backend | Rust, Axum 0.7, Tokio, SQLx |
-| Agent | Rust, Tokio, Bollard (Podman/Docker) |
+| Agent | Rust, Tokio, Bollard (Podman or Docker) |
 | Frontend | React 19, TypeScript, Vite, Zustand, Tailwind |
 | Data | PostgreSQL 16, Redis 7 |
-| Auth / billing | Supabase (auth), Whop (billing) |
-| Edge | Caddy (TLS), AWS ECR (images) |
-
----
+| Auth / billing | Supabase, Whop, Resend |
+| Edge | nginx or Caddy for TLS, Docker images |
 
 ## Domains
 
-`esclusehg.com` (landing) · `app.` (dashboard) · `api.` (backend) · `docs.` ·
-`bridge.` (admin) · `get.` (agent downloads) · `*.play.` (relay, player traffic)
-
----
+`esclusehg.com` for the landing page, `app.` for the dashboard, `api.` for the backend,
+`get.` for agent downloads and `*.play.` for relay traffic.
 
 ## Get started
 
-Install the agent on a Linux machine and link it to your dashboard:
+Put the agent on a Linux machine:
 
 ```bash
 curl -fsSL https://get.esclusehg.com/latest/install.sh | bash
 ```
 
-Then visit [esclusehg.com](https://esclusehg.com). See
-[docs.esclusehg.com](https://docs.esclusehg.com) for the full setup guide.
+Then open [esclusehg.com](https://esclusehg.com) and sign in.
